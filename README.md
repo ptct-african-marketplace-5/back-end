@@ -1,5 +1,5 @@
-Sauti 
-
+Sauti
+deployed - 
 * Back End API RESTful Endpoints *
 
 | what you want to do: (request TYPE) http://example.com/api/endpoint |
@@ -41,8 +41,3 @@ add listing: (POST) https://ptct-african-marketplace-5.herokuapp.com/api/items-f
 update listing: (PUT) https://ptct-african-marketplace-5.herokuapp.com/api/items-for-sale/:id
 
 delete  listing: (DELETE) https://ptct-african-marketplace-5.herokuapp.com/api/items-for-sale/:id
-
-
-
-
-
