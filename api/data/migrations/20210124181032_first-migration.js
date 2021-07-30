@@ -3,7 +3,7 @@ exports.up = async (knex) => {
 
     // USERS TABLE
     .createTable('users', table => {
-      table.increments('id') // id is auto generated and does not need id name but I spell out the name anyway
+      table.increments('id') //auto
       table.string('username', 200).notNullable().unique()
       table.string('password', 200).notNullable()
       table.string('first_name', 128)
