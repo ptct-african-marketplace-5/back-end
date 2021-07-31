@@ -61,8 +61,6 @@ router.post('/register',checkPayload, checkUserNameInDB, (req, res) => {
         });
 });
 
-
-
 router.post('/login', checkPayload, checkUserExists, (req, res) => {
 
     let { username, password } = req.body;
