@@ -1,41 +1,39 @@
-const db = require('../data/db-config')
+const db = require('../data/db-config');
 
-module.exports = {
-    find,
-    findBy,
-    findById,
-    add,
-    update,
-    remove
+function getUsers() {
+  return db('users');
 }
 
-function find() {
-    return db('items')
-}
-
-
-function findBy(filter) {
-    return db('items').where(filter);
+function getItems() { // INCLUDING item NAME
+  return db('items as i')
+    .leftJoin('users as u', 'u.item_id', 'i.item_id')
+    .select('i.item_id', 'i.item_name', 'i.item_description', 'i.price')
 }
 
 function findById(id) {
     return db("items").where({ id }).first();
 }
 
+async function createItem(item) {
+  const [item_id] = await db('items').insert(item);
+  return getItems().where({ item_id }).first();
+}
 
-async function add(item) {
-    const [id] = await db('items').insert(item, 'id');
-    return findById(id);
+function deleteItem(item_id) {
+  return db('items').where({ item_id }).del();
+}
+
+async function editItem(item_id, changes) {
+    await db("items").where({ item_id }).update(changes);
+    return getItems();
 }
 
 
-async function update(id, changes) {
-    await db("items").where({ id }).update(changes);
-    return findById(id);
-}
-
-function remove(id) {
-    return db('items')
-        .where('id', id)
-        .del();
-}
+module.exports = {
+  getUsers,
+  getItems,
+  findById,
+  createItem,
+  editItem,
+  deleteItem,
+};

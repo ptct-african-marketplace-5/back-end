@@ -1,47 +1,38 @@
-const router = require('express').Router()
-const Items = require('./items-model')
-// const { restrict } = require('../users/users-middleware.js');
-const authenticate = require('../auth/auth-middleware.js');
+const express = require('express');
+const Items = require('./item-model');
+const authenticate = require('../auth/auth-middleware');
 
-router.get('/', authenticate, (req, res, next) => {
-    Items.find()
-        .then(item => {
-            res.json(item)
-        })
-        .catch(next)
-})
+const router = express.Router();
 
+router.get('/users', (req, res, next) => {
+  Items.getUsers()
+    .then(users => {
+      res.status(200).json(users);
+    })
+    .catch(next); // our custom err handling middleware in server.js will trap this
+});
 
-router.get('/:id', authenticate, (req, res, next) => {
-    const { id } = req.params;
+router.get('/items', (req, res, next) => {
+  Items.getItems() 
+    .then(items => {
+      res.status(200).json(items);
+    })
+    .catch(next);
+});
 
-    Items.findById(id)
-        .then((item) => {
-            if (item) {
-                res.status(200).json(item);
-            } else {
-                res.status(404).json({ message: `Could not find Item with id ${id}.` });
-            }
-        })
-        .catch(next);
-})
+router.post('/items', authenticate, (req, res, next) => { 
+  Items.createItem(req.body)
+    .then(item => {
+      res.status(201).json(item);
+    })
+    .catch(next);
+});
 
-router.post('/', authenticate, (req, res, next) => {
-    let item = req.body
-    Items.add(item)
-        .then(saved => {
-            res.status(201).json(saved)
-        })
-        .catch(next)
-
-
-})
-
-router.put('/:id', authenticate, (req, res, next) => {
+router.put('/:item_id', authenticate, (req, res, next) => {
     const changes = req.body
     const { id } = req.params;
 
-    Items.update(id, changes)
+    Items.editItem(id, changes)
         .then(item => {
             if (item) {
                 Items.findById(req.params.id)
@@ -62,23 +53,16 @@ router.put('/:id', authenticate, (req, res, next) => {
 })
 
 
+router.delete('/items/:item_id', authenticate, (req, res, next) => {  
+  Items.deleteItem(req.params.item_id)
+    .then(count => {
+      if (count > 0) {
+        res.status(204).end();
+      } else {
+        res.status(404).json({ message: 'Record not found' });
+      }
+    })
+    .catch(next);
+});
 
-router.delete('/:id', authenticate, (req, res, next) => {
-    const { id } = req.params;
-    Items.remove(id)
-        .then(deletedItem => {
-            if (deletedItem) {
-                res.json({
-                    message: `removed: ${deletedItem} successfully`
-                })
-            } else {
-                res.status(404).json({
-                    error: 'item could not be deleted. given id not found in db'
-                })
-            }
-        })
-        .catch(next)
-})
-
-
-module.exports = router
+module.exports = router;
