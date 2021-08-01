@@ -20,14 +20,6 @@ server.use('/api/items-for-sale', listingsRouter)
 server.use('/api/locations', locationsRouter)
 server.use('/api/users', usersRouter)
 
-// remove this
-server.get('/api/users', async (req, res) => {
-  res.json(await getAllUsers())
-})
-// remove this
-server.post('/api/users', async (req, res) => {
-  res.status(201).json(await insertUser(req.body))
-})
 
 server.get('/', (req, res) => {
   res.status(200).send("<h1>Welcome to the Sauti African Marketplace API</h1>")
