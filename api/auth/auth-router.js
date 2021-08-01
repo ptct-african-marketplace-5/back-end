@@ -5,9 +5,46 @@ const secrets = require('../../config/secrets');
 
 const Users = require('../users/users-model');
 
+//let's use additional middlewares to validate the payload, whether username is taken or not before registering
+// and check if the user exissts in the DB before login.
+const checkPayload = (req,res,next)=>{
+  if(!req.body.username || !req.body.password){
+      res.status(401).json("username and password required")
+  }else{
+      next()
+  }
+}
+
+const checkUserNameInDB = async (req,res,next)=>{
+  try{
+      const rows = await Users.findBy({username:req.body.username})
+      if(!rows.length){
+          next()
+      }else{
+          res.status(401).json("username taken")
+      }
+  }catch(e){
+      res.status(500).json(`Server error: ${e.message}`)
+  }
+}
+
+const checkUserExists = async (req,res,next)=>{
+  try{
+      const rows = await Users.findBy({username:req.body.username})
+      if(rows.length){
+          req.userData = rows[0]
+          next()
+      }else{
+          res.status(401).json("invalid credentials")
+      }
+  }catch(e){
+      res.status(500).json(`Server error: ${e.message}`)
+  }
+}
 
 
-router.post('/register', (req, res) => {
+
+router.post('/register',checkPayload, checkUserNameInDB, (req, res) => {
 
     let user = req.body;
     const rounds = process.env.HASH_ROUNDS || 8;
@@ -24,9 +61,7 @@ router.post('/register', (req, res) => {
         });
 });
 
-
-
-router.post('/login', (req, res) => {
+router.post('/login', checkPayload, checkUserExists, (req, res) => {
 
     let { username, password } = req.body;
 
